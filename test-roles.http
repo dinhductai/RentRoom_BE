@@ -1,0 +1,85 @@
+### 1. Đăng nhập với USER account
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "your-password"
+}
+
+### Lưu token từ response trên và thay vào đây
+@userToken = YOUR_USER_TOKEN_HERE
+
+### 2. Kiểm tra thông tin user và roles (CHI TIẾT)
+GET http://localhost:8080/debug/me
+Authorization: Bearer {{userToken}}
+
+### 3. Kiểm tra roles cụ thể (TRUE/FALSE)
+GET http://localhost:8080/debug/check-roles
+Authorization: Bearer {{userToken}}
+
+### 4. Test USER role endpoint
+GET http://localhost:8080/debug/user-only
+Authorization: Bearer {{userToken}}
+
+### 5. Test ADMIN role endpoint (should fail if not admin)
+GET http://localhost:8080/debug/admin-only
+Authorization: Bearer {{userToken}}
+
+### 6. Test RENTALER role endpoint (should fail if not rentaler)
+GET http://localhost:8080/debug/rentaler-only
+Authorization: Bearer {{userToken}}
+
+###############################################
+### ADMIN ACCOUNT TEST
+###############################################
+
+### 1. Đăng nhập với ADMIN account
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "your-password"
+}
+
+@adminToken = YOUR_ADMIN_TOKEN_HERE
+
+### 2. Kiểm tra thông tin admin và roles (CHI TIẾT)
+GET http://localhost:8080/debug/me
+Authorization: Bearer {{adminToken}}
+
+### 3. Kiểm tra roles cụ thể (TRUE/FALSE)
+GET http://localhost:8080/debug/check-roles
+Authorization: Bearer {{adminToken}}
+
+### 4. Test ADMIN role endpoint
+GET http://localhost:8080/debug/admin-only
+Authorization: Bearer {{adminToken}}
+
+###############################################
+### RENTALER ACCOUNT TEST
+###############################################
+
+### 1. Đăng nhập với RENTALER account
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "rentaler@example.com",
+  "password": "your-password"
+}
+
+@rentalerToken = YOUR_RENTALER_TOKEN_HERE
+
+### 2. Kiểm tra thông tin rentaler và roles (CHI TIẾT)
+GET http://localhost:8080/debug/me
+Authorization: Bearer {{rentalerToken}}
+
+### 3. Kiểm tra roles cụ thể (TRUE/FALSE)
+GET http://localhost:8080/debug/check-roles
+Authorization: Bearer {{rentalerToken}}
+
+### 4. Test RENTALER role endpoint
+GET http://localhost:8080/debug/rentaler-only
+Authorization: Bearer {{rentalerToken}}

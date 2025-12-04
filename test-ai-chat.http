@@ -1,0 +1,35 @@
+### Test AI Chat Endpoint (NO AUTH REQUIRED)
+
+POST http://localhost:8080/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "Tôi muốn tìm phòng trọ giá khoảng 3 triệu ở Hà Nội"
+}
+
+###
+
+POST http://localhost:8080/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "Có phòng nào giá rẻ không?"
+}
+
+###
+
+POST http://localhost:8080/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "Hello, bạn có thể giúp gì cho tôi?"
+}
+
+###
+
+POST http://localhost:8080/api/ai/chat
+Content-Type: application/json
+
+{
+  "message": "Cho tôi biết các phòng trống hiện có"
+}
