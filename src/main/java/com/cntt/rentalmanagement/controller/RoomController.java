@@ -80,31 +80,37 @@ public class RoomController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasRole('RENTALER')")
     public ResponseEntity<?> disableRoom(@PathVariable Long id) {
         return ResponseEntity.ok(roomService.disableRoom(id));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('RENTALER')")
     public ResponseEntity<?> updateRoomInfo(@PathVariable Long id, MultipartHttpServletRequest request) {
         return ResponseEntity.ok(roomService.updateRoomInfo(id, putRoomRequest(request)));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('RENTALER')")
     public ResponseEntity<?> addRoom(MultipartHttpServletRequest request) {
         return ResponseEntity.ok(roomService.addNewRoom(putRoomRequest(request)));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('RENTALER')")
     public ResponseEntity<?> removeRoom(@PathVariable Long id) {
         return ResponseEntity.ok(roomService.removeRoom(id));
     }
 
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> isApprove(@PathVariable Long id) {
         return ResponseEntity.ok(roomService.isApproveRoom(id));
     }
 
     @PostMapping("/{id}/checkout")
+    @PreAuthorize("hasRole('RENTALER')")
     public ResponseEntity<?> checkoutRoom(@PathVariable Long id) {
         return ResponseEntity.ok(roomService.checkoutRoom(id));
     }

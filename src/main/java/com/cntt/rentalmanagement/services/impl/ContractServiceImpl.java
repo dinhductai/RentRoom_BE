@@ -132,14 +132,22 @@ public class ContractServiceImpl extends BaseService implements ContractService 
     @Override
     public MessageResponse editContractInfo(Long id, String name, Long roomId, String nameOfRent, Long numOfPeople,
             String phone, String deadlineContract, List<MultipartFile> files) {
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Hợp đồng không tồn tại!"));
+        
+        // Kiểm tra ownership: contract phải thuộc về phòng của RENTALER hiện tại
+        if (!contract.getRoom().getUser().getId().equals(getUserId())) {
+            throw new BadRequestException("Bạn không có quyền sửa hợp đồng này.");
+        }
+        
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new BadRequestException("Phòng đã không tồn tại"));
+//        Room room = roomRepository.findById(roomId)
+//                .orElseThrow(() -> new BadRequestException("Phòng đã không tồn tại"));
         if (room.getIsLocked().equals(LockedStatus.DISABLE)) {
             throw new BadRequestException("Phòng đã bị khóa");
         }
 
-        Contract contract = contractRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Hợp đồng không tồn tại!"));
         contract.setDeadlineContract(LocalDateTime.parse(deadlineContract));
         contract.setRoom(room);
         contract.setName(name);
@@ -159,39 +167,11 @@ public class ContractServiceImpl extends BaseService implements ContractService 
     }
 
     @Override
-    public Page<ContractResponse> getAllContractOfCustomer(String phone, Integer pageNo, Integer pageSize) {
+    public Page<ContractResponse> getAllContractOfCustomer(Integer pageNo, Integer pageSize) {
         int page = pageNo == 0 ? pageNo : pageNo - 1;
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Contract> contracts = contractRepository.searchingContact(phone, pageable);
-
-        // Xử lý fallback phone: nếu contract không có phone, lấy từ renterUser
-        contracts.getContent().forEach(contract -> {
-            if (contract.getPhone() == null || contract.getPhone().isEmpty()) {
-                // Query phone từ user table dựa trên renter_user_id
-                // Lấy renter_user_id từ contract (có thể từ getRenterUser().getId() hoặc từ
-                // database)
-                if (contract.getRenterUser() != null && contract.getRenterUser().getId() != null) {
-                    userRepository.findById(contract.getRenterUser().getId()).ifPresent(user -> {
-                        if (user.getPhone() != null && !user.getPhone().isEmpty()) {
-                            contract.setPhone(user.getPhone());
-                        }
-                    });
-                } else {
-                    // Nếu renterUser chưa được load, query trực tiếp từ database
-                    // Tìm contract trong database để lấy renter_user_id
-                    contractRepository.findById(contract.getId()).ifPresent(dbContract -> {
-                        if (dbContract.getRenterUser() != null) {
-                            userRepository.findById(dbContract.getRenterUser().getId()).ifPresent(user -> {
-                                if (user.getPhone() != null && !user.getPhone().isEmpty()) {
-                                    contract.setPhone(user.getPhone());
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        });
-
+        // Query contract theo renter_user_id = current user id
+        Page<Contract> contracts = contractRepository.findByRenterUser_Id(getUserId(), pageable);
         return mapperUtils.convertToResponsePage(contracts, ContractResponse.class, pageable);
     }
 

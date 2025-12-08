@@ -49,4 +49,16 @@ public class FollowServiceImpl extends BaseService implements FollowService {
         Pageable pageable = PageRequest.of(page, pageSize);
         return mapperUtils.convertToResponsePage(followRepository.getPageFollow(getUserId(),pageable),FollowResponse.class, pageable);
     }
+    
+    @Override
+    public MessageResponse removeFollow(Long rentalerId) {
+        User customer = userRepository.findById(getUserId())
+                .orElseThrow(() -> new BadRequestException("Tài khoảng không tồn tại"));
+        User rentaler = userRepository.findById(rentalerId)
+                .orElseThrow(() -> new BadRequestException("Tài khoảng không tồn tại"));
+        Follow follow = followRepository.findByCustomerAndRentaler(customer, rentaler)
+                .orElseThrow(() -> new BadRequestException("Bạn chưa theo dõi người này."));
+        followRepository.delete(follow);
+        return MessageResponse.builder().message("Đã hủy theo dõi.").build();
+    }
 }

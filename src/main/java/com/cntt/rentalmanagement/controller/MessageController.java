@@ -72,13 +72,13 @@ public class MessageController {
 	}
 
 	@GetMapping("/user/message/{userName}")
-	// @PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
+	@PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
 	public List<User> findMessageUser(@CurrentUser UserPrincipal userPrincipal, @PathVariable String userName) {
 		return userServiceImpl.findMessageUser(userName);
 	}
 
 	@GetMapping("/user/message-chat/{userId}")
-	// @PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
+	@PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
 	public Message getMessageChatUser(@CurrentUser UserPrincipal userPrincipal, @PathVariable Long userId) {
 		return userServiceImpl.getMessageChatUser(userPrincipal.getId(), userId);
 	}

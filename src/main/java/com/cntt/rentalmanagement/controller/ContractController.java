@@ -3,6 +3,7 @@ package com.cntt.rentalmanagement.controller;
 import com.cntt.rentalmanagement.services.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +17,8 @@ public class ContractController {
     private final ContractService contractService;
 
     @PostMapping
-    private ResponseEntity<?> addContract(@RequestParam String name,
+    @PreAuthorize("hasRole('RENTALER')")
+    public ResponseEntity<?> addContract(@RequestParam String name,
             @RequestParam Long roomId,
             @RequestParam String nameOfRent,
             @RequestParam Long numOfPeople,
@@ -28,7 +30,8 @@ public class ContractController {
     }
 
     @PostMapping("/with-rental-code")
-    private ResponseEntity<?> addContractWithRentalCode(@RequestParam String name,
+    @PreAuthorize("hasRole('RENTALER')")
+    public ResponseEntity<?> addContractWithRentalCode(@RequestParam String name,
             @RequestParam Long roomId,
             @RequestParam String rentalCode,
             @RequestParam String deadlineContract,
@@ -38,7 +41,8 @@ public class ContractController {
     }
 
     @GetMapping
-    private ResponseEntity<?> getAllContract(@RequestParam(required = false) String name,
+    @PreAuthorize("hasRole('RENTALER')")
+    public ResponseEntity<?> getAllContract(@RequestParam(required = false) String name,
             @RequestParam(required = false) String phone,
             @RequestParam Integer pageNo,
             @RequestParam Integer pageSize) {
@@ -46,20 +50,22 @@ public class ContractController {
     }
 
     @GetMapping("/customer")
-    private ResponseEntity<?> getAllContractForCustomer(
-            @RequestParam(required = false) String phone,
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getAllContractForCustomer(
             @RequestParam Integer pageNo,
             @RequestParam Integer pageSize) {
-        return ResponseEntity.ok(contractService.getAllContractOfCustomer(phone, pageNo, pageSize));
+        return ResponseEntity.ok(contractService.getAllContractOfCustomer(pageNo, pageSize));
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<?> getContractById(@PathVariable Long id) {
+    @PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
+    public ResponseEntity<?> getContractById(@PathVariable Long id) {
         return ResponseEntity.ok(contractService.getContractById(id));
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<?> updateContractInfo(@PathVariable Long id,
+    @PreAuthorize("hasRole('RENTALER')")
+    public ResponseEntity<?> updateContractInfo(@PathVariable Long id,
             @RequestParam String name,
             @RequestParam Long roomId,
             @RequestParam String nameOfRent,

@@ -21,5 +21,5 @@ public interface ContractService {
     MessageResponse editContractInfo(Long id, String name, Long roomId, String nameOfRent, Long numOfPeople,
             String phone, String deadlineContract, List<MultipartFile> files);
 
-    Page<ContractResponse> getAllContractOfCustomer(String phone, Integer pageNo, Integer pageSize);
+    Page<ContractResponse> getAllContractOfCustomer(Integer pageNo, Integer pageSize);
 }

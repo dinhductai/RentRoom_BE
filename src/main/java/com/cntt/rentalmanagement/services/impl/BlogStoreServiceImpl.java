@@ -49,4 +49,16 @@ public class BlogStoreServiceImpl extends BaseService implements BlogStoreServic
         Pageable pageable = PageRequest.of(page, pageSize);
         return mapperUtils.convertToResponsePage(blogStoreRepository.getPageOfBlogStore(getUserId(), pageable),BlogStoreResponse.class, pageable);
     }
+    
+    @Override
+    public MessageResponse removeBlogStore(Long roomId) {
+        User customer = userRepository.findById(getUserId())
+                .orElseThrow(() -> new BadRequestException("Tài khoảng không tồn tại"));
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new BadRequestException("Thông tin phòng không tồn tại."));
+        BlogStore blogStore = blogStoreRepository.findByRoomAndUser(room, customer)
+                .orElseThrow(() -> new BadRequestException("Bài đăng chưa được lưu."));
+        blogStoreRepository.delete(blogStore);
+        return MessageResponse.builder().message("Đã bỏ lưu bài đăng.").build();
+    }
 }

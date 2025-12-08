@@ -131,6 +131,11 @@ public class RoomServiceImpl extends BaseService implements RoomService {
     public MessageResponse disableRoom(Long id) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Thông tin phòng không tồn tại."));
+        
+        // Kiểm tra quyền sở hữu - chỉ chủ phòng mới được ẩn/hiện
+        if (!room.getUser().getId().equals(getUserId())) {
+            throw new BadRequestException("Bạn không có quyền thực hiện thao tác này.");
+        }
 
         // Toggle ẩn/hiện phòng
         if (room.getIsLocked() == LockedStatus.ENABLE) {
@@ -149,6 +154,12 @@ public class RoomServiceImpl extends BaseService implements RoomService {
     public MessageResponse updateRoomInfo(Long id, RoomRequest roomRequest) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Thông tin phòng không tồn tại."));
+        
+        // Kiểm tra quyền sở hữu - chỉ chủ phòng mới được cập nhật
+        if (!room.getUser().getId().equals(getUserId())) {
+            throw new BadRequestException("Bạn không có quyền chỉnh sửa phòng này.");
+        }
+        
         Location location = locationRepository.findById(roomRequest.getLocationId())
                 .orElseThrow(() -> new BadRequestException("Thành phố chưa tồn tại."));
         Category category = categoryRepository.findById(roomRequest.getCategoryId())
@@ -283,6 +294,12 @@ public class RoomServiceImpl extends BaseService implements RoomService {
     @Override
     public MessageResponse checkoutRoom(Long id) {
         Room room = roomRepository.findById(id).orElseThrow(() -> new BadRequestException("Phòng không còn tồn tại"));
+        
+        // Kiểm tra quyền sở hữu - chỉ chủ phòng mới được checkout
+        if (!room.getUser().getId().equals(getUserId())) {
+            throw new BadRequestException("Bạn không có quyền thực hiện checkout phòng này.");
+        }
+        
         room.setStatus(RoomStatus.CHECKED_OUT);
         roomRepository.save(room);
         return MessageResponse.builder().message("Trả phòng và xuất hóa đơn thành công.").build();
@@ -303,6 +320,12 @@ public class RoomServiceImpl extends BaseService implements RoomService {
     @Override
     public MessageResponse removeRoom(Long id) {
         Room room = roomRepository.findById(id).orElseThrow(() -> new BadRequestException("Phòng không còn tồn tại"));
+        
+        // Kiểm tra quyền sở hữu - chỉ chủ phòng mới được gỡ bài
+        if (!room.getUser().getId().equals(getUserId())) {
+            throw new BadRequestException("Bạn không có quyền gỡ bài đăng này.");
+        }
+        
         if (Boolean.TRUE.equals(room.getIsRemove())) {
             throw new BadRequestException("Bài đăng đã bị gỡ");
         }

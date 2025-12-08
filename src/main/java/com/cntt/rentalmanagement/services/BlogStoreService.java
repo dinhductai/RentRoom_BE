@@ -9,4 +9,6 @@ public interface BlogStoreService {
     MessageResponse saveBlog(BlogStoreRequest storeRequest);
 
     Page<BlogStoreResponse> getPageOfBlog(Integer pageNo, Integer pageSize);
+    
+    MessageResponse removeBlogStore(Long roomId);
 }

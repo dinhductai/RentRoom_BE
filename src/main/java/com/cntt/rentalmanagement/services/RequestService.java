@@ -12,7 +12,7 @@ public interface RequestService {
 
     RequireResponse getRequest(Long id);
 
-    Page<RequireResponse> getRequestOfCustomer(String keyword, String phone, Integer pageNo, Integer pageSize);
+    Page<RequireResponse> getRequestOfCustomer(String keyword, Integer pageNo, Integer pageSize);
 
     MessageResponse addRequest(RequestRequest request);
 }
