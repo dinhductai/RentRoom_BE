@@ -120,7 +120,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/view-file/**",
                         "/document/**",
                         "/image/**",
-                        "/api/ai/**")
+                        "/api/ai/**",
+                        "/*.pdf",
+                        "/*.doc",
+                        "/*.docx",
+                        "/*.xlsx",
+                        "/*.xls",
+                        "/**/*.pdf",
+                        "/**/*.doc",
+                        "/**/*.docx",
+                        "/**/*.xlsx",
+                        "/**/*.xls")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

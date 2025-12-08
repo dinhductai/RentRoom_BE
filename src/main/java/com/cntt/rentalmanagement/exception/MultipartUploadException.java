@@ -30,4 +30,11 @@ public class MultipartUploadException {
     public ResponseEntity<?> handleException(Exception e) {
         return ResponseEntity.ok(MessageResponse.builder().message("Forbidden.").build());
     }
+
+    @ExceptionHandler({ MyFileNotFoundException.class })
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<?> handleFileNotFoundException(MyFileNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(MessageResponse.builder().message("File not found: " + e.getMessage()).build());
+    }
 }
