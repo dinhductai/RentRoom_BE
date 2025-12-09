@@ -2,6 +2,8 @@ package com.cntt.rentalmanagement.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.cntt.rentalmanagement.domain.models.Message;
 import com.cntt.rentalmanagement.domain.models.MessageChat;
 import com.cntt.rentalmanagement.domain.models.User;
@@ -23,4 +25,8 @@ public interface UserService {
 	Message getMessageChatUser(Long userId, Long guestId);
 
 	String addChatUser(Long id, Long userId, MessageChat messageChat);
+
+	Page<User> getRentalers(String name, Integer pageNo, Integer pageSize);
+
+	List<User> searchUsersByName(String userName);
 }

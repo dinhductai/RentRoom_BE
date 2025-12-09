@@ -14,6 +14,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -49,5 +50,33 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         Query nativeQuery = em.createNativeQuery(queryString);
         nativeQuery.setParameter("userId", userId);
         nativeQuery.executeUpdate();
+    }
+
+    @Override
+    public Page<User> findRentalers(String name, Pageable pageable) {
+        StringBuilder strQuery = new StringBuilder();
+        strQuery.append("from rental_home.users u ");
+        strQuery.append("INNER JOIN rental_home.user_roles ur ON u.id = ur.user_id ");
+        strQuery.append("INNER JOIN rental_home.roles r ON ur.role_id = r.id ");
+        strQuery.append("WHERE r.name = 'ROLE_RENTALER' ");
+
+        Map<String, Object> params = new HashMap<>();
+        if (Objects.nonNull(name) && !name.isEmpty()) {
+            strQuery.append("AND u.name LIKE :name ");
+            params.put("name", "%" + name + "%");
+        }
+
+        String strSelectQuery = "SELECT DISTINCT u.* " + strQuery;
+        String strCountQuery = "SELECT COUNT(DISTINCT u.id) " + strQuery;
+
+        return BaseRepository.getPagedNativeQuery(em, strSelectQuery, strCountQuery, params, pageable, User.class);
+    }
+
+    @Override
+    public List<User> findByNameContainingIgnoreCase(String userName) {
+        String queryString = "SELECT * FROM rental_home.users u WHERE UPPER(u.name) LIKE UPPER(:userName)";
+        Query nativeQuery = em.createNativeQuery(queryString, User.class);
+        nativeQuery.setParameter("userName", "%" + userName + "%");
+        return nativeQuery.getResultList();
     }
 }

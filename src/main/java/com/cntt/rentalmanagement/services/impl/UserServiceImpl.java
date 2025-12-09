@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.cntt.rentalmanagement.services.BaseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.cntt.rentalmanagement.domain.models.Message;
@@ -194,6 +197,25 @@ public class UserServiceImpl extends BaseService implements UserService {
 		} catch (Exception e) {
 			System.out.println(e.toString());
 			return "Gửi tin nhắn thất bại!!!";
+		}
+	}
+
+	@Override
+	public Page<User> getRentalers(String name, Integer pageNo, Integer pageSize) {
+		try {
+			Pageable pageable = PageRequest.of(pageNo, pageSize);
+			return userRepository.findRentalers(name, pageable);
+		} catch (Exception e) {
+			throw new ResourceNotFoundException("Error fetching rentalers", "name", name);
+		}
+	}
+
+	@Override
+	public List<User> searchUsersByName(String userName) {
+		try {
+			return userRepository.findByNameContainingIgnoreCase(userName);
+		} catch (Exception e) {
+			return new ArrayList<>();
 		}
 	}
 

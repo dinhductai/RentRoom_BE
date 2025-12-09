@@ -2,15 +2,24 @@ package com.cntt.rentalmanagement.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cntt.rentalmanagement.domain.models.Message;
+import com.cntt.rentalmanagement.domain.models.MessageChat;
 import com.cntt.rentalmanagement.domain.models.User;
 import com.cntt.rentalmanagement.domain.models.DTO.MessageDTO;
+import com.cntt.rentalmanagement.domain.payload.request.MessageChatRequest;
+import com.cntt.rentalmanagement.domain.payload.response.MessageResponse;
 import com.cntt.rentalmanagement.repository.MessageChatRepository;
 import com.cntt.rentalmanagement.repository.MessageRepository;
 import com.cntt.rentalmanagement.repository.UserRepository;
@@ -81,5 +90,56 @@ public class MessageController {
 	@PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
 	public Message getMessageChatUser(@CurrentUser UserPrincipal userPrincipal, @PathVariable Long userId) {
 		return userServiceImpl.getMessageChatUser(userPrincipal.getId(), userId);
+	}
+
+	/**
+	 * API gửi tin nhắn đến user khác
+	 * @param userPrincipal User hiện tại
+	 * @param userId ID của user nhận tin nhắn
+	 * @param request Nội dung tin nhắn
+	 * @return MessageResponse
+	 */
+	@PostMapping("/user/message-chat/{userId}")
+	@PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
+	public ResponseEntity<?> sendMessage(
+			@CurrentUser UserPrincipal userPrincipal,
+			@PathVariable Long userId,
+			@Valid @RequestBody MessageChatRequest request) {
+		
+		MessageChat messageChat = new MessageChat();
+		messageChat.setContent(request.getContent());
+		
+		String result = userServiceImpl.addChatUser(userPrincipal.getId(), userId, messageChat);
+		
+		return ResponseEntity.ok(MessageResponse.builder()
+				.message(result)
+				.build());
+	}
+
+	/**
+	 * API lấy danh sách RENTALER (người cho thuê) để nhắn tin
+	 * @param name Tìm kiếm theo tên (optional, hỗ trợ LIKE)
+	 * @param pageNo Số trang (default = 0)
+	 * @param pageSize Số lượng/trang (default = 20)
+	 * @return Page<User>
+	 */
+	@GetMapping("/user/rentalers")
+	@PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
+	public ResponseEntity<?> getRentalers(
+			@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "20") Integer pageSize) {
+		return ResponseEntity.ok(userServiceImpl.getRentalers(name, pageNo, pageSize));
+	}
+
+	/**
+	 * API tìm kiếm user theo tên (cải tiến - hỗ trợ LIKE)
+	 * @param userName Tên user cần tìm
+	 * @return List<User>
+	 */
+	@GetMapping("/user/search")
+	@PreAuthorize("hasRole('USER') or hasRole('RENTALER')")
+	public ResponseEntity<?> searchUsers(@RequestParam String userName) {
+		return ResponseEntity.ok(userServiceImpl.searchUsersByName(userName));
 	}
 }
